@@ -9,6 +9,10 @@ var usersRouter = require('./routes/users');
 var contactRouter = require('./routes/contact');
 var postDetailRouter = require('./routes/post-detail');
 var postsListRouter = require('./routes/posts-list')
+var indexAdminRouter = require('./routes/admin/index');
+var addPostAdminRouter = require('./routes/admin/add-post');
+var viewEditAdminRouter = require('./routes/admin/view-edit');
+var graphsAdminRouter = require('./routes/admin/graphs')
 
 var app = express();
 
@@ -27,6 +31,11 @@ app.use('/users', usersRouter);
 app.use('/contact', contactRouter);
 app.use('/post-detail', postDetailRouter);
 app.use('/posts-list', postsListRouter);
+app.use('/admin/', indexAdminRouter);
+app.use('/admin/add-post', addPostAdminRouter);
+app.use('/admin/view-edit', viewEditAdminRouter);
+app.use('/admin/graphs', graphsAdminRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
