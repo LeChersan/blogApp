@@ -9,12 +9,34 @@ var usersRouter = require('./routes/users');
 var contactRouter = require('./routes/contact');
 var postDetailRouter = require('./routes/post-detail');
 var postsListRouter = require('./routes/posts-list')
+
+//routes Admin//
 var indexAdminRouter = require('./routes/admin/index');
 var addPostAdminRouter = require('./routes/admin/add-post');
 var viewEditAdminRouter = require('./routes/admin/view-edit');
 var graphsAdminRouter = require('./routes/admin/graphs')
 
+//routes API//
+
+var apiUsersRouter = require('./routes/api/users/index');
+
 var app = express();
+
+//connection db//
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb+srv://LeChersan:ljORc9t58Krfv41m@cluster0.dxehy.mongodb.net/blogApp?retryWrites=true&w=majority', {
+    useNewUrlParser: true, 
+    useUnifiedTopology: true,
+    useCreateIndex: true,
+})
+
+mongoose.Promise = global.Promise;
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error'))
+db.once('open', function callback(){
+    console.log('Connected to db')
+})
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -35,6 +57,8 @@ app.use('/admin/', indexAdminRouter);
 app.use('/admin/add-post', addPostAdminRouter);
 app.use('/admin/view-edit', viewEditAdminRouter);
 app.use('/admin/graphs', graphsAdminRouter);
+app.use('/api/users/', apiUsersRouter);
+
 
 
 // catch 404 and forward to error handler
