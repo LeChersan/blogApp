@@ -1,1 +1,47 @@
-h1= title
+extends ./layouts/standard.pug
+
+block content 
+
+    .container-fluid
+        .row
+            .col-4.offset-4
+                form#formAddPost(enctype="multipart/form-data")
+                    h1 agregar nuevo post
+                    .form-group
+                        input.form-control(type="text", name="post_title", required="true", placeholder="title")
+                    .form-group
+                        input.form-control(type="text", name="post_description", required="true", placeholder="description")
+                    .form-group
+                        textarea.form-control(type="text", rows="4", name="post_content", required="true", placeholder="contenido")
+                    .form-group
+                        select.form-control(name="post_tags[]")
+                            option(value="ciencia") ciencia
+                            option(value="tecnologia") tecnologia
+                            option(value="cine") cine
+                            option(value="anime") anime
+                    .form-group
+                        input.form-control(type="file", name="post_img", required="true", placeholder="Imagen")
+                    .form-group
+                        input.form-control(type="text", name="post_user_id", required="true", placeholder="usuario")
+                    .form-group
+                        button.btn.btn-success(type="Submit") agregar
+    script.
+        $("#formAddPost").submit(function(event){
+            event.preventDefault()
+            const newData = new FormData($(this)[0])
+
+            $.ajax({
+                url:"/api/posts/",
+                method:"POST",
+                data: newData,
+                contentType: false,
+                processData: false,
+                async: false,
+                cache: false,
+            }).done(function(data){
+                alert(data.message)
+                $("#formAddPost")[0].reset()
+            }).fail(function(jqXHR, textStatus, err){
+                alert(jqXHR.responseJSON.message)
+            })
+        })
