@@ -1,1 +1,47 @@
-h1= title
+extends ./layouts/standard.pug
+
+block content 
+
+    .container-fluid
+        .row
+            .col-8.offset-2
+                br
+                h1 Lista de posts
+                br
+                table.table
+                    thead.thead-dark
+                        tr
+                            th(scope='col') Img
+                            th(scope='col') Date
+                            th(scope='col') Title
+                            th(scope='col') Description
+                            th(scope='col') Author
+                            th(scope='col') Action
+                    tbody#contentPost
+
+    script.
+        $("body").ready(function(event){
+       
+            $.ajax({
+                url:"/api/posts/",
+                method:"GET",
+                data: {},
+            }).done(function(data){
+               
+                $.each(data, function(index,value){ 
+                                var post = `<tr>
+                                <td><img src="/images/post/${value.img}" width="50px"></td>
+                                <td>${value.date}</td>
+                                <td>${value.title}</td>
+                                <td>${value.description}</td>
+                                <td></td>
+                                <td><button type="button" class="btn btn-outline-info">Edit</button></td>
+                            </tr>`
+                    $("#contentPost").append(post)
+                }) 
+                console.log(data)
+            }).fail(function(jqXHR, textStatus, err){
+                console.log(jqXHR.responseJSON.message)
+            })
+        })
+

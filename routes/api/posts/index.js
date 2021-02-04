@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 var PostModel = require("../../../models/Post")
-var bcrypt = require("bcrypt")
 var fileUpload = require("express-fileupload")
 
 router.use(fileUpload())
@@ -95,7 +94,7 @@ router.get('/', function(req, res){
         if(err){ 
             return res.status(500).json({
                 ok: false,
-                message: "Error en la consulta"
+                message: "Error en la consulta" 
             })
         }
         res.json(posts)
@@ -108,11 +107,43 @@ router.put('/:id', function(req, res){
         var postDescription = req.body.edit_post_description
         var postContent = req.body.edit_post_content
         var postTags = req.body['edit_post_tags[]']
-        var postImg = req.files.edit_post_img.name
-        var postImgFile = req.files.edit_post_img
-        var postUserId = req.params.edit_post_user_id
+        var postUserId = req.params.id
 
-        console.log(req.files)
+        //validacion de campos
+        if (!(postTitle || postDescription || postContent || postUserId )) {
+            return res.status(400).json({
+                ok: false,
+                message: "Favor de enviar los campos obligatorios"
+            })
+        }
+
+        //validacion de campos vacios
+        if ((postTitle == '' || postDescription == '' || postContent == '' || postUserId == '')) {
+            return res.status(400).json({
+                ok: false,
+                message: "Favor llenar los campos obligatorios"
+            })
+        }
+
+        PostModel.tags.remove({"_id": postUserId}).exec(function(err, tag){
+            //se envia mensaje de error al intentar guardar datos
+            if (err) {
+                res.status(500).json({
+                    ok: false,
+                    message: "Cannot complete query"
+                })
+            }
+
+            //se envia respuesta por datos guardados exitosamente
+            if (tag) {
+                res.status(201).json({
+                    ok: true,
+                    message: "tag eliminado correctamente"
+                })
+            }
+        })
+
+        console.log(req.body)
 })
 
 module.exports = router;
