@@ -14,6 +14,10 @@ var PostModel = function(){
         'user_id' : {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User'
+        },
+        'activated': {
+            type: Boolean,
+            default: true,
         }
     })
 

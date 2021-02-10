@@ -14,7 +14,7 @@ router.post('/', function (req, res, next) {
     var postTags = req.body['post_tags[]']
     var postImg = req.files.post_img.name
     var postImgFile = req.files.post_img
-    var postUserId = req.files.post_user_id
+    var postUserId = req.body.post_user_id
 
 
     //validacion de campos
@@ -49,7 +49,7 @@ router.post('/', function (req, res, next) {
         newPost.content = postContent
         newPost.tags = postTags
         newPost.img = postImg
-        newPost.user_id= postUserId
+        newPost.user_id = postUserId
        
 
         //Funcion para guardar datos despues de proceso de validacion
@@ -75,7 +75,7 @@ router.post('/', function (req, res, next) {
 });
 
 router.get('/:id', function (req, res) {
-    PostModel.findOne({ '_id': req.params.id }).exec(function (err, post) {
+    PostModel.findOne({ '_id': req.params.id }).populate("users").exec(function (err, post) {
         if (err) {
             console.log(err)
             return res.status(500).json({
@@ -90,7 +90,7 @@ router.get('/:id', function (req, res) {
 })
 
 router.get('/', function(req, res){
-    PostModel.find().exec(function(err, posts){
+    PostModel.find({"activated": true}).exec(function(err, posts){
         if(err){ 
             return res.status(500).json({
                 ok: false,
@@ -102,49 +102,80 @@ router.get('/', function(req, res){
 })
 
 router.put('/:id', function(req, res){
-        //Se obtienen datos
-        var postTitle = req.body.edit_post_title
-        var postDescription = req.body.edit_post_description
-        var postContent = req.body.edit_post_content
-        var postTags = req.body['edit_post_tags[]']
-        var postUserId = req.params.id
+    //Se obtienen datos
+    var postTitle = req.body.edit_post_title
+    var postDescription = req.body.edit_post_description
+    var postContent = req.body.edit_post_content
+    var postTags = req.body['edit_post_tags[]']
+    var postId = req.params.id
 
-        //validacion de campos
-        if (!(postTitle || postDescription || postContent || postUserId )) {
-            return res.status(400).json({
-                ok: false,
-                message: "Favor de enviar los campos obligatorios"
-            })
-        }
-
-        //validacion de campos vacios
-        if ((postTitle == '' || postDescription == '' || postContent == '' || postUserId == '')) {
-            return res.status(400).json({
-                ok: false,
-                message: "Favor llenar los campos obligatorios"
-            })
-        }
-
-        PostModel.tags.remove({"_id": postUserId}).exec(function(err, tag){
-            //se envia mensaje de error al intentar guardar datos
-            if (err) {
-                res.status(500).json({
-                    ok: false,
-                    message: "Cannot complete query"
-                })
-            }
-
-            //se envia respuesta por datos guardados exitosamente
-            if (tag) {
-                res.status(201).json({
-                    ok: true,
-                    message: "tag eliminado correctamente"
-                })
-            }
+    //validacion de campos
+    if (!(postTitle || postDescription || postContent || postId )) {
+        return res.status(400).json({
+            ok: false,
+            message: "Favor de enviar los campos obligatorios"
         })
+    }
 
-        console.log(req.body)
+    //validacion de campos vacios
+    if ((postTitle == '' || postDescription == '' || postContent == '' || postId == '')) {
+        return res.status(400).json({
+            ok: false,
+            message: "Favor llenar los campos obligatorios"
+        })
+    }
+
+    PostModel.findByIdAndUpdate(postId, {'$set': {'tags': []}}, function(err, tags){
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                message: "Error en la consulta"
+            })
+        }
+        if(tags){
+            PostModel.findByIdAndUpdate(postId, {
+                "$set": {
+                    'title': postTitle,
+                    'description': postDescription,
+                    'content': postContent,
+                    'tags': postTags,
+                }
+            },function(err, post){
+                if(err){
+                    return res.status(500).json({
+                        ok: false,
+                        message: "Error al intentar agregar post"
+                    })
+                }   
+                return res.status(200).json({
+                    ok: true,
+                    message: "El post se edito correctamente"
+                })
+            })
+        }
+    })
 })
+
+router.delete('/:id', function(req, res){
+    var idPost = req.params.id
+    PostModel.findByIdAndUpdate(idPost,{
+        '$set': {
+            'activated': false
+        }
+    }, function(err, post){
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                message: "Error al intentar desactivar el usuario"
+            })
+        }
+        return res.status(200).json({
+            ok: true,
+            message: "El usuario se desactivo correctamente"
+        })
+    })
+})
+
 
 module.exports = router;
 

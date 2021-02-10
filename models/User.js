@@ -13,6 +13,10 @@ var UserModel = function(){
             'instagram': String,
             'twitter': String,
             'linkedin': String,
+        },
+        'activated': {
+            type: Boolean,
+            default: true,
         }
     })
 
