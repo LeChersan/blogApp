@@ -156,6 +156,57 @@ router.put('/:id', function(req, res){
     })
 })
 
+router.put('/img/:id', function(req,res){
+    var postImg = req.files.post_img.name
+    var postImgFile = req.files.post_img
+    var postId = req.params.id
+
+    //validacion de campos
+    if (!postImg) {
+        return res.status(400).json({
+            ok: false,
+            message: "Favor de enviar los campos obligatorios"
+        })
+    }
+
+    PostModel.findOne({'_id':postId}, function(err, post){
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                message: "Error en la consulta"
+            })
+        }
+        if(post){
+                //se realiza funcion para guardar la imagen
+            postImgFile.mv(`./public/images/post/${postImg}`, err => {
+                if (err) {
+                    return res.status(500).json({
+                        ok: false,
+                        message: "Error al intentar guardar la imagen"
+                    })
+                }
+
+                PostModel.findByIdAndUpdate(postId, {
+                    "$set": {
+                        'img': postImg,
+                    }
+                },function(err, post){
+                    if(err){
+                        return res.status(500).json({
+                            ok: false,
+                            message: "Error al actualizar la imagen"
+                        })
+                    }   
+                    return res.status(200).json({
+                        ok: true,
+                        message: "La imagen se edito correctamente"
+                    })
+                })
+            })
+        }
+    })
+})
+
 router.delete('/:id', function(req, res){
     var idPost = req.params.id
     PostModel.findByIdAndUpdate(idPost,{
