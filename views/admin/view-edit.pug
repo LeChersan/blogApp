@@ -18,6 +18,37 @@ block content
                             th(scope='col') Author
                             th(scope='col') Action
                     tbody#contentPost
+    #postModal.modal.fade(tabindex='-1' aria-labelledby='postModalLabel' aria-hidden='true')
+        .modal-dialog
+            .modal-content
+                .modal-header
+                    h5#postModalLabel.modal-title Edit Post
+                    button.close(type='button' data-dismiss='modal' aria-label='Close')
+                        span(aria-hidden='true') ×
+                .modal-body
+                    form
+                        .form-group 
+                            img#img-post(src="", alt="", width="100%")
+                        .form-group
+                            input#id-post.form-control(type='text')
+                        .form-group
+                            label.col-form-label(for='title-edit') Title:
+                            input.form-control#title-edit(name="title-edit")
+                        .form-group
+                            label.col-form-label(for='description-edit') Description:
+                            input.form-control#description-edit(name="description-edit") 
+                        .form-group
+                            label.col-form-label(for='content-edit') Content:
+                            textarea.form-control#content-edit(name="content-edit")
+                        .form-group
+                            label.col-form-label(for='status-edit') Status:
+                            select.form-control#status-edit(name="status-edit")
+                                option(value="true") active
+                                option(value="false") unactive
+
+                .modal-footer
+                    button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+                    button.btn.btn-primary(type='button') Send message
 
     script.
         $("body").ready(function(event){
@@ -34,8 +65,8 @@ block content
                                 <td>${value.date}</td>
                                 <td>${value.title}</td>
                                 <td>${value.description}</td>
-                                <td></td>
-                                <td><button type="button" class="btn btn-outline-info">Edit</button></td>
+                                <td></td> 
+                                <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postModal" data-id="${value._id}">Edit</button></td>
                             </tr>`
                     $("#contentPost").append(post)
                 }) 
@@ -44,4 +75,32 @@ block content
                 console.log(jqXHR.responseJSON.message)
             })
         })
+
+        $('#postModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget) // Button that triggered the modal
+            var postId = button.data('id') // Extract info from data-* attributes
+            // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+            $.ajax({
+                url: '/api/posts/'+postId, 
+                type: 'GET',
+                data: {},
+                dataType: 'JSON',
+            }).done(function(data){
+                console.log(data)
+                console.log(data.activated)
+                $('#title-edit').val(data.title)
+                $('#description-edit').val(data.description)
+                $('#content-edit').val(data.content)
+                $('#status-edit').val(String(data.activated))
+                $('#img-post').attr('src', '/images/post/'+data.img)
+            }).fail(function(jqXHR, textStatus, errorThrow){
+                alert(jqXHR.responseJSON.message)
+            })
+            // Update the modal's content. We'll use jQuery here, but you could use a data binding library or other methods instead.
+            var modal = $(this)
+            modal.find('.modal-body #id-post').val(postId)
+
+        })
+
+
 

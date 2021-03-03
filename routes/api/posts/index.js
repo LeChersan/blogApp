@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var PostModel = require("../../../models/Post")
 var fileUpload = require("express-fileupload")
+var fs = require('fs')
 
 router.use(fileUpload())
 
@@ -160,6 +161,16 @@ router.put('/img/:id', function(req,res){
     var postImg = req.files.post_img.name
     var postImgFile = req.files.post_img
     var postId = req.params.id
+    var extImg = ""
+
+    if (postImgFile.mimetype == 'image/jpeg'){
+        extImg = ".jpeg"
+    } else if (postImgFile.mimetype == 'image/jpg') {
+        extImg = ".jpg"    
+    } else if (postImgFile.mimetype == 'image/png') {
+        extImg = ".png"     
+    } 
+  
 
     //validacion de campos
     if (!postImg) {
@@ -177,32 +188,44 @@ router.put('/img/:id', function(req,res){
             })
         }
         if(post){
-                //se realiza funcion para guardar la imagen
-            postImgFile.mv(`./public/images/post/${postImg}`, err => {
+           //  console.log(post)
+
+            fs.unlink(`./public/images/post/${post.img}`, (err) => {
                 if (err) {
                     return res.status(500).json({
                         ok: false,
-                        message: "Error al intentar guardar la imagen"
+                        message: "Error al intentar borrar la imagen"
                     })
                 }
-
-                PostModel.findByIdAndUpdate(postId, {
-                    "$set": {
-                        'img': postImg,
-                    }
-                },function(err, post){
-                    if(err){
+                postImg = Math.random().toString(36).substring(7)
+                postImg = `${postImg}${extImg}`
+                   //se realiza funcion para guardar la imagen
+                postImgFile.mv(`./public/images/post/${postImg}`, err => {
+                    if (err) {
                         return res.status(500).json({
                             ok: false,
-                            message: "Error al actualizar la imagen"
+                            message: "Error al intentar guardar la imagen"
                         })
-                    }   
-                    return res.status(200).json({
-                        ok: true,
-                        message: "La imagen se edito correctamente"
+                    }
+
+                    PostModel.findByIdAndUpdate(postId, {
+                        "$set": {
+                            'img': postImg,
+                        }
+                    },function(err, post){
+                        if(err){
+                            return res.status(500).json({
+                                ok: false,
+                                message: "Error al actualizar la imagen"
+                            })
+                        }   
+                        return res.status(200).json({
+                            ok: true,
+                            message: "La imagen se edito correctamente"
+                        })
                     })
                 })
-            })
+            })   
         }
     })
 })
