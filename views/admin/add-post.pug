@@ -14,11 +14,18 @@ block content
                     .form-group
                         textarea.form-control(type="text", rows="4", name="post_content", required="true", placeholder="contenido")
                     .form-group
-                        select.form-control(name="post_tags[]")
-                            option(value="ciencia") ciencia
-                            option(value="tecnologia") tecnologia
-                            option(value="cine") cine
-                            option(value="anime") anime
+                        .form-check.form-check-inline
+                            input.form-check-input(type='checkbox', value='ciencia', name='post_tags[]')
+                            label.form-check-label(for='') ciencia
+                        .form-check.form-check-inline
+                            input.form-check-input(type='checkbox', value='tecnologia', name='post_tags[]')
+                            label.form-check-label(for='') tecnologia
+                        .form-check.form-check-inline
+                            input.form-check-input(type='checkbox', value='cine', name='post_tags[]')
+                            label.form-check-label(for='') cine
+                        .form-check.form-check-inline
+                            input.form-check-input(type='checkbox', value='anime', name='post_tags[]')
+                            label.form-check-label(for='') anime
                     .form-group
                         input.form-control(type="file", name="post_img", required="true", placeholder="Imagen")
                     .form-group
