@@ -1,0 +1,41 @@
+extends ./layouts/standard.pug
+
+block content 
+
+    .container-fluid  
+        .row
+            .col-10.offset-1 
+                <h1>Choose your poison...</h1>
+                .row#contentPost(style="padding-top: 50px") 
+                   
+    script.
+       
+        function showPosts(){
+            $.ajax({
+                url:"/api/posts/",
+                method:"GET",
+                data: {},
+            }).done(function(data){
+            
+                $.each(data, function(index,value){ 
+                            var post = `<div class="col-4">
+                                            <div class="card" style="width:100%">
+                                                <img src="/images/post/${value.img}" class="card-img-top" alt="...">
+                                                <div class="card-body">
+                                                    <h5 class="card-title">${value.title}</h5>
+                                                    <p class="card-text">${value.description}</p>
+                                                    <a href="/post-detail/${value._id}" class="btn btn-primary">Leer articulo</a>
+                                                </div>
+                                            </div>
+                                        </div>`
+                    $("#contentPost").append(post)
+                }) 
+                console.log(data)
+            }).fail(function(jqXHR, textStatus, err){
+                console.log(jqXHR.responseJSON.message)
+            })
+        }
+
+        showPosts()
+
+                

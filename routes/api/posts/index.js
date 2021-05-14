@@ -250,6 +250,70 @@ router.delete('/:id', function(req, res){
     })
 })
 
+router.get('/graphs/1', function(req, res){
+    var data = {
+        "tags": [],
+        "totales":[],
+        "anime": 0,
+        "cine": 0,
+        "ciencia": 0,
+        "tecnologia": 0
+    }
+
+    PostModel.count({"tags": "anime"}).exec(function(err, totalAnime){
+        if(err){ 
+            return res.status(500).json({
+                ok: false,
+                message: "Error en la consulta" 
+            })
+        } 
+
+        data.anime = totalAnime
+        data.tags.push("anime")
+        data.totales.push(totalAnime)
+
+        PostModel.count({"tags": "ciencia"}).exec(function(err, totalCiencia){
+            if(err){ 
+                return res.status(500).json({
+                    ok: false,
+                    message: "Error en la consulta" 
+                })
+            } 
+    
+            data.ciencia = totalCiencia 
+            data.tags.push("ciencia")
+            data.totales.push(totalCiencia)
+
+            PostModel.count({"tags": "tecnologia"}).exec(function(err, totalTecnologia){
+                if(err){ 
+                    return res.status(500).json({
+                        ok: false,
+                        message: "Error en la consulta" 
+                    })
+                } 
+        
+                data.tecnologia = totalTecnologia
+                data.tags.push("tecnologia")
+                data.totales.push(totalTecnologia)
+
+                PostModel.count({"tags": "cine"}).exec(function(err, totalCine){
+                    if(err){ 
+                        return res.status(500).json({
+                            ok: false,
+                            message: "Error en la consulta" 
+                        })
+                    } 
+            
+                    data.cine = totalCine
+                    data.tags.push("cine")
+                    data.totales.push(totalCine)
+                    res.json(data)       
+                }) 
+            })
+        })
+    })
+})
+
 
 module.exports = router;
 

@@ -5,3 +5,24 @@ footer {
     color: white;
     padding: 10px;
 }
+
+#img-detail-post{
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    height: 400px;
+}
+
+#contentTitlePost{
+    height: 100%;
+    width: 100%;
+    background-color: #21139ba9;
+    padding-top: 70px;
+    padding-bottom: 70px;   
+}
+
+#textTitlePost{
+    color: aliceblue;
+    padding-top: 80px;
+    text-align: justify;
+}

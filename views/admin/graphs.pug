@@ -1,1 +1,90 @@
-h1= title
+extends ./layouts/standard.pug
+
+block content 
+
+    script(src="https://cdn.jsdelivr.net/npm/chart.js@3.1.1/dist/chart.min.js") 
+    .container-fluid 
+        .row 
+            .col-10.offset-1
+                .row
+                    .col-6
+                        canvas(id="myChart" width="100%" height="100px")
+                    .col-6 
+                        canvas(id="myChart2" width="100%" height="100px")
+
+
+    script.
+        $.ajax({
+            url:"/api/posts/graphs/1",
+            method:"GET",
+            data: {},
+        }).done(function(data){
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: data.tags, 
+                datasets: [{
+                    label: '# of Votes',
+                    data: data.totales,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+        
+            console.log(data)
+        }).fail(function(jqXHR, textStatus, err){
+            console.log(jqXHR.responseJSON.message)
+        })
+
+
+        var ctx = document.getElementById('myChart2').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Juan', 'Pedro', 'Luis', 'Octavio'],
+                datasets: [{
+                    label: '# articulos publicados',
+                    data: [12, 19, 3, 5],
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });

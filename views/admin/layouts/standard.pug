@@ -3,8 +3,8 @@ html(lang="en")
     include ./head.pug
 
     body
-
-        include ./navbar.pug
+        if title != "Home"
+            include ./navbar.pug
        
         block content
 

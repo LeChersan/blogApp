@@ -51,7 +51,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/contact', contactRouter);
-app.use('/post-detail', postDetailRouter);
+app.use('/post-detail/', postDetailRouter);
 app.use('/posts-list', postsListRouter);
 app.use('/admin/', indexAdminRouter);
 app.use('/admin/add-post', addPostAdminRouter);

@@ -2,4 +2,35 @@ extends ./layouts/standard.pug
 
 block content 
 
-    <h1>Post Detail</h1>
+    input#idPost(type="hidden", value=idPost)
+    .container-fluid 
+        .row#img-detail-post
+            #contentTitlePost 
+                .row 
+                    .col-10.offset-1#textTitlePost
+                        
+                        h1#title 
+                        p#description 
+                        p(style="text-align: left;") Posted by Nelly Chersan on April 13, 2021
+        .row 
+            .col-10.offset-1#content
+               
+    script.
+        var postId = $("#idPost").val()
+        $.ajax({
+                url: '/api/posts/'+postId, 
+                type: 'GET',
+                data: {},
+                dataType: 'JSON',
+            }).done(function(data){
+                console.log(data)
+                //- console.log(data.activated)
+                $('#title').html(data.title)
+                $('#description').html(data.description)
+                $('#content').html(data.content)
+                $('#img-detail-post').attr('style', `background-image: url('/images/post/${data.img}');`)
+                
+            
+            }).fail(function(jqXHR, textStatus, errorThrow){
+                alert(jqXHR.responseJSON.message)
+            })

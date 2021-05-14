@@ -18,6 +18,8 @@ block content
                             th(scope='col') Author
                             th(scope='col') Action
                     tbody#contentPost
+
+    //- //inicia modal 
     #postModal.modal.fade(tabindex='-1' aria-labelledby='postModalLabel' aria-hidden='true')
         .modal-dialog
             .modal-content
@@ -26,39 +28,44 @@ block content
                     button.close(type='button' data-dismiss='modal' aria-label='Close')
                         span(aria-hidden='true') ×
                 .modal-body
-                    form
+
+                    form(action="", id="formPostImg", enctype="multipart/form-data")
                         .form-group 
                             img#img-post(src="", alt="", width="100%")
+                        .form-group 
+                            label(for="") actualizar imagen(.jpg, .png, .jpeg): 
+                            input.form-control(type="file", name="post_img", accept="image/png, image/jpg, image/jpeg")
+                        .form-group 
+                            button.btn.btn-success(type="submit") actualizar imagen
+                            br
+                            br
+                    form(action="", id="formEditPost", enctype="multipart/form-data")
                         .form-group
                             input#id-post.form-control(type='text')
                         .form-group
                             label.col-form-label(for='title-edit') Title:
-                            input.form-control#title-edit(name="title-edit")
+                            input.form-control#title-edit(name="edit_post_title", maxlength="50")
                         .form-group
                             label.col-form-label(for='description-edit') Description:
-                            input.form-control#description-edit(name="description-edit") 
+                            input.form-control#description-edit(name="edit_post_description", maxlength="120") 
                         .form-group
                             label.col-form-label(for='content-edit') Content:
-                            textarea.form-control#content-edit(name="content-edit")
-                        .form-group
-                            label.col-form-label(for='status-edit') Status:
-                            select.form-control#status-edit(name="status-edit")
-                                option(value="true") active
-                                option(value="false") unactive
+                            textarea.form-control#content-edit(name="edit_post_content")
+                        .form-group#contentTags
 
-                .modal-footer
-                    button.btn.btn-secondary(type='button' data-dismiss='modal') Close
-                    button.btn.btn-primary(type='button') Send message
+                        .modal-footer
+                            button.btn.btn-secondary(type='button' data-dismiss='modal') Close
+                            button.btn.btn-primary(type='submit') Actualizar
 
     script.
-        $("body").ready(function(event){
        
+        function showPosts(){
             $.ajax({
                 url:"/api/posts/",
                 method:"GET",
                 data: {},
             }).done(function(data){
-               
+            
                 $.each(data, function(index,value){ 
                                 var post = `<tr>
                                 <td><img src="/images/post/${value.img}" width="50px"></td>
@@ -66,15 +73,24 @@ block content
                                 <td>${value.title}</td>
                                 <td>${value.description}</td>
                                 <td></td> 
-                                <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postModal" data-id="${value._id}">Edit</button></td>
+                                <td>
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#postModal" data-id="${value._id}">Edit</button>
+                                    <button type="button" class="btn btn-danger"> Delete </button>
+                                </td>
                             </tr>`
                     $("#contentPost").append(post)
+
                 }) 
                 console.log(data)
             }).fail(function(jqXHR, textStatus, err){
                 console.log(jqXHR.responseJSON.message)
             })
-        })
+        }
+
+        showPosts()
+      
+
+     
 
         $('#postModal').on('show.bs.modal', function (event) {
             var button = $(event.relatedTarget) // Button that triggered the modal
@@ -86,13 +102,25 @@ block content
                 data: {},
                 dataType: 'JSON',
             }).done(function(data){
-                console.log(data)
-                console.log(data.activated)
+                //- console.log(data)
+                //- console.log(data.activated)
                 $('#title-edit').val(data.title)
                 $('#description-edit').val(data.description)
                 $('#content-edit').val(data.content)
-                $('#status-edit').val(String(data.activated))
                 $('#img-post').attr('src', '/images/post/'+data.img)
+                $("#contentTags").html("")
+                var listTags=["cine", "ciencia", "tecnologia", "anime"]
+                
+                $.each(listTags, function(index2, tag){
+                    //- console.log(tag)
+                    var check=''
+                    if(data.tags.includes(tag)){
+                        check='checked'
+                    }
+                    var elementCheck= `<div class="form-check form-check-inline"><input class="form-check-input" type="checkbox" value="${tag}" name="edit_post_tags[]" ${check}><label class="form-check-label" for="">${tag}</label></div>`
+                    $("#contentTags").append(elementCheck)
+                    
+                })
             }).fail(function(jqXHR, textStatus, errorThrow){
                 alert(jqXHR.responseJSON.message)
             })
@@ -101,6 +129,53 @@ block content
             modal.find('.modal-body #id-post').val(postId)
 
         })
+
+        $("#formPostImg").submit(function(event){
+            event.preventDefault()
+            const newData = new FormData($(this)[0])
+            var idPost = $("#id-post").val()
+            $.ajax({
+                url: "/api/posts/img/"+idPost,
+                method:"PUT",
+                data: newData,
+                contentType: false,
+                processData: false,
+                async: false,
+                cache: false,
+            }).done(function(data){
+                alert(data.message)
+                location.reload()
+            }).fail(function(jqXHR, textStatus, err){
+                alert(jqXHR.responseJSON.message)
+            })
+        })
+
+        $("#formEditPost").submit(function(event){
+            event.preventDefault()
+            const newData = new FormData($(this)[0])
+
+            $.ajax({
+                url:"/api/posts/" + $("#id-post").val(),
+                method: "PUT",
+                data: newData,
+                contentType: false,
+                processData: false,
+                async: false,
+                cache: false,
+            }).done(function(data){
+               
+                alert(data.message)
+                $("#postModal").modal('hide')
+                location.reload()
+                
+            }).fail(function(jqXHR, textStatus, err){
+                alert(jqXHR.responseJSON.message)
+            })
+        })
+
+
+
+
 
 
 
